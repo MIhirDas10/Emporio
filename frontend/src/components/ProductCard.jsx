@@ -35,17 +35,6 @@ const ProductCard = ({ product }) => {
             {product.name}
           </h5>
 
-          {/* Free or Paid Badge beside the name */}
-          {/* <span
-            className={`ml-2 px-3 py-1 rounded-full text-xs font-semibold ${
-              product.isFree
-                ? "bg-emerald-600 text-white"
-                : "bg-purple-600 text-white"
-            }`}
-          >
-            {product.isFree ? "Free" : "Paid"}
-          </span> */}
-
           <span
             className={`ml-2 px-3 py-1 rounded-full text-xs font-semibold ${
               product.price === 0
