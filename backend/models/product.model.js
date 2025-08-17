@@ -28,9 +28,21 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isFree: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
+
+// free -> price 0
+productSchema.pre("save", function (next) {
+  if (this.isFree) {
+    this.price = 0;
+  }
+  next();
+});
 
 const Product = mongoose.model("Product", productSchema);
 

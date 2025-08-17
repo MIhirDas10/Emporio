@@ -8,6 +8,7 @@ import userRoutes from "./routes/user.route.js";
 import postRoutes from "./routes/post.route.js";
 import productRoutes from "./routes/product.route.js";
 import cartRoutes from "./routes/cart.route.js";
+import searchRoutes from "./routes/search.route.js";
 import { connectDB } from "./lib/db.js";
 
 dotenv.config();
@@ -23,6 +24,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/post", postRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/user", userRoutes); // "/api/user/update"
+app.use("/api/search", searchRoutes);
 
 app.listen(5000, () => {
   console.log("SERVER is running on http://localhost:" + PORT);

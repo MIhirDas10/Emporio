@@ -17,17 +17,19 @@ export const useUserStore = create((set, get) => ({
     }
 
     try {
-      const res = await axios.post("/auth/signup", {
+      await axios.post("/auth/signup", {
         name,
         username,
         email,
         password,
       });
-      set({ user: res.data, loading: false });
-      toast.success("Signed in successfully");
+
+      await get().checkAuth();
+      set({ loading: false });
+      toast.success("Signed up successfully");
     } catch (error) {
       set({ loading: false });
-      toast.error(error.response.data.message || "An error occurred");
+      toast.error(error.response?.data?.message || "An error occurred");
     }
   },
 
@@ -40,8 +42,13 @@ export const useUserStore = create((set, get) => ({
         password,
         ...(email ? { email } : { username }),
       };
-      const res = await axios.post("/auth/login", payload);
-      set({ user: res.data, loading: false });
+
+      await axios.post("/auth/login", payload);
+
+      // fetch full user profile immediately after login
+      await get().checkAuth();
+
+      set({ loading: false });
       toast.success("Logged in successfully");
     } catch (error) {
       set({ loading: false });
@@ -51,7 +58,7 @@ export const useUserStore = create((set, get) => ({
     }
   },
 
-  //   logout
+  // logout
   logout: async () => {
     try {
       await axios.post("/auth/logout");
@@ -63,7 +70,19 @@ export const useUserStore = create((set, get) => ({
     }
   },
 
-  // check auth to stay loggedin
+  // update profile
+  updateUser: async (data) => {
+    try {
+      const response = await axios.put("/user/update", data);
+      set({ user: response.data });
+      toast.success("Profile updated successfully");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update profile");
+      throw error;
+    }
+  },
+
+  // to stay logged in
   checkAuth: async () => {
     set({ checkingAuth: true });
     try {
@@ -73,4 +92,45 @@ export const useUserStore = create((set, get) => ({
       set({ checkingAuth: false, user: null });
     }
   },
+
+  // refresh token
+  refreshToken: async () => {
+    if (get().checkingAuth) return;
+
+    set({ checkingAuth: true });
+    try {
+      const response = await axios.post("/auth/refresh-token");
+      set({ checkingAuth: false });
+      return response.data;
+    } catch (error) {
+      set({ user: null, checkingAuth: false });
+      throw error;
+    }
+  },
 }));
+
+let refreshPromise = null;
+axios.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        if (refreshPromise) {
+          await refreshPromise;
+          return axios(originalRequest);
+        }
+        refreshPromise = useUserStore.getState().refreshToken();
+        await refreshPromise;
+        refreshPromise = null;
+        return axios(originalRequest);
+      } catch (refreshError) {
+        useUserStore.getState().logout();
+        return Promise.reject(refreshError);
+      }
+    }
+    return Promise.reject(error);
+  }
+);

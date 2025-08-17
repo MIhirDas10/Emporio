@@ -19,6 +19,7 @@ const CreateProductForm = () => {
     price: "",
     category: "",
     image: "",
+    isFree: false,
   });
 
   const { createProduct, loading } = useProductStore();
@@ -35,6 +36,7 @@ const CreateProductForm = () => {
         price: "",
         category: "",
         image: "",
+        isFree: false,
       });
     } catch {
       console.log("error creating a product");
@@ -96,16 +98,18 @@ const CreateProductForm = () => {
               type="number"
               id="price"
               name="price"
-              value={newProduct.price}
+              value={newProduct.isFree ? 0 : newProduct.price}
               onChange={(e) =>
                 setNewProduct({ ...newProduct, price: e.target.value })
               }
               step="0.01"
-              className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-              required
+              disabled={newProduct.isFree}
+              className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:opacity-50"
+              required={!newProduct.isFree}
             />
           </div>
 
+          {/* selecting category */}
           <div>
             <label
               htmlFor="category"
@@ -131,6 +135,26 @@ const CreateProductForm = () => {
               ))}
             </select>
           </div>
+        </div>
+
+        {/* free/paid checkbox */}
+        <div className="flex items-center space-x-3">
+          <input
+            type="checkbox"
+            id="isFree"
+            checked={newProduct.isFree}
+            onChange={(e) =>
+              setNewProduct({
+                ...newProduct,
+                isFree: e.target.checked,
+                price: e.target.checked ? 0 : newProduct.price,
+              })
+            }
+            className="h-4 w-4 text-emerald-600 border-gray-600 rounded focus:ring-emerald-500"
+          />
+          <label htmlFor="isFree" className="text-sm text-gray-300">
+            Mark as Free Product
+          </label>
         </div>
 
         {/* description */}
