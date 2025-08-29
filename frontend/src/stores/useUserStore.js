@@ -34,6 +34,31 @@ export const useUserStore = create((set, get) => ({
   },
 
   // login
+  // login: async ({ username, email, password }) => {
+  //   set({ loading: true });
+
+  //   try {
+  //     const payload = {
+  //       password,
+  //       ...(email ? { email } : { username }),
+  //     };
+
+  //     await axios.post("/auth/login", payload);
+
+  //     // fetch full user profile immediately after login
+  //     await get().checkAuth();
+
+  //     set({ loading: false });
+  //     toast.success("Logged in successfully");
+  //   } catch (error) {
+  //     set({ loading: false });
+  //     toast.error(
+  //       error?.response?.data?.message || "Login failed. An error occurred"
+  //     );
+  //   }
+  // },
+
+  // login
   login: async ({ username, email, password }) => {
     set({ loading: true });
 
@@ -48,13 +73,18 @@ export const useUserStore = create((set, get) => ({
       // fetch full user profile immediately after login
       await get().checkAuth();
 
+      const loggedInUser = get().user; // get the user after authentication
+
       set({ loading: false });
       toast.success("Logged in successfully");
+
+      return loggedInUser; // <-- return user so LoginPage can redirect based on role
     } catch (error) {
       set({ loading: false });
       toast.error(
         error?.response?.data?.message || "Login failed. An error occurred"
       );
+      throw error; // throw error so LoginPage can handle it
     }
   },
 

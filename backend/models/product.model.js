@@ -1,42 +1,79 @@
 import mongoose from "mongoose";
 
-const productSchema = new mongoose.Schema(
+const reviewSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
-    description: {
-      type: String,
-      required: true,
-    },
-    price: {
+    rating: {
       type: Number,
-      min: 0,
+      min: 1,
+      max: 5,
       required: true,
     },
-    image: {
+    comment: {
       type: String,
-      required: [true, "Image is required"],
-    },
-    category: {
-      type: String,
-      required: true,
-    },
-    // todo -> tag
-    isFeatured: {
-      type: Boolean,
-      default: false,
-    },
-    isFree: {
-      type: Boolean,
-      default: false,
+      default: "",
     },
   },
   { timestamps: true }
 );
 
-// free -> price 0
+const productSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    description: {
+      type: String,
+      required: function () {
+        return !this.isWishlistItem;
+      },
+    },
+    price: {
+      type: Number,
+      min: 0,
+      required: function () {
+        return !this.isWishlistItem;
+      },
+    },
+    image: {
+      type: String,
+      required: function () {
+        return !this.isWishlistItem;
+      },
+    },
+    category: {
+      type: String,
+      required: function () {
+        return !this.isWishlistItem;
+      },
+    },
+    isFeatured: { type: Boolean, default: false },
+    isFree: { type: Boolean, default: false },
+
+    // Voting system fields
+    votes: {
+      type: Number,
+      default: 0,
+    },
+    isWishlistItem: { type: Boolean, default: false },
+
+    // NEW: Track which users voted for this product
+    votedBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+
+    // existing fields
+    reviews: [reviewSchema],
+    averageRating: { type: Number, default: 0 },
+  },
+  { timestamps: true }
+);
+
 productSchema.pre("save", function (next) {
   if (this.isFree) {
     this.price = 0;
@@ -44,6 +81,15 @@ productSchema.pre("save", function (next) {
   next();
 });
 
-const Product = mongoose.model("Product", productSchema);
+productSchema.methods.calculateAverageRating = function () {
+  if (this.reviews.length === 0) {
+    this.averageRating = 0;
+  } else {
+    const sum = this.reviews.reduce((acc, review) => acc + review.rating, 0);
+    this.averageRating = sum / this.reviews.length;
+  }
+  return this.averageRating;
+};
 
+const Product = mongoose.model("Product", productSchema);
 export default Product;

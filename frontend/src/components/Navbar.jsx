@@ -64,37 +64,71 @@ const Navbar = () => {
             </Link>
 
             <nav className="flex items-center gap-4 relative">
-              <div className="hidden sm:flex items-center bg-gray-800 rounded-full px-3 py-1 w-64">
-                <Search
-                  size={22}
-                  className="text-gray-400 mr-2 cursor-pointer"
-                  onClick={() => {
-                    if (query.trim()) {
-                      navigate(`/search?query=${encodeURIComponent(query)}`);
-                    }
-                  }}
-                />
-                <input
-                  type="text"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search products..."
-                  className="bg-transparent focus:outline-none text-sm text-white w-full"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && query.trim()) {
-                      navigate(`/search?query=${encodeURIComponent(query)}`);
-                    }
-                  }}
-                />
-              </div>
-              <Link
-                to="/"
-                className="text-gray-300 hover:text-emerald-400 transition duration-300"
-              >
-                <HomeIcon size={24} />
-              </Link>
+              {user && !isAdmin && (
+                <>
+                  <div className="hidden sm:flex items-center bg-gray-800 rounded-full px-3 py-1 w-64">
+                    <Search
+                      size={22}
+                      className="text-gray-400 mr-2 cursor-pointer"
+                      onClick={() => {
+                        if (query.trim()) {
+                          navigate(
+                            `/search?query=${encodeURIComponent(query)}`
+                          );
+                        }
+                      }}
+                    />
+                    <input
+                      type="text"
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder="Search products..."
+                      className="bg-transparent focus:outline-none text-sm text-white w-full"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && query.trim()) {
+                          navigate(
+                            `/search?query=${encodeURIComponent(query)}`
+                          );
+                        }
+                      }}
+                    />
+                  </div>
+                </>
+              )}
+              {user && !isAdmin && (
+                <>
+                  <Link
+                    to="/"
+                    className="text-gray-300 hover:text-emerald-400 transition duration-300"
+                  >
+                    <HomeIcon size={24} />
+                  </Link>
+                </>
+              )}
 
-              {user && (
+              {isAdmin && (
+                <Link
+                  to="/secret-dashboard"
+                  className="text-gray-300 hover:text-emerald-400 transition duration-300"
+                >
+                  {/* <Lock size={18} className="mr-2" /> */}
+                  {/* <span className="hidden sm:inline">Dashboard</span> */}
+                  <HomeIcon size={24} />
+                </Link>
+              )}
+
+              {user && !isAdmin && (
+                <>
+                  <Link
+                    to="/community"
+                    className="text-gray-300 hover:text-emerald-400 transition duration-300"
+                  >
+                    <PartyPopperIcon size={24} />
+                  </Link>
+                </>
+              )}
+
+              {user && !isAdmin && (
                 <>
                   {/* cart */}
                   <Link
@@ -108,7 +142,10 @@ const Navbar = () => {
                       </span>
                     )}
                   </Link>
-
+                </>
+              )}
+              {user && (
+                <>
                   {/* dropdown */}
                   <div className="relative" ref={dropdownRef}>
                     <button
@@ -153,16 +190,6 @@ const Navbar = () => {
                     )}
                   </div>
                 </>
-              )}
-
-              {isAdmin && (
-                <Link
-                  to="/secret-dashboard"
-                  className="bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1 rounded-md font-medium flex items-center transition duration-300"
-                >
-                  <Lock size={18} className="mr-2" />
-                  <span className="hidden sm:inline">Dashboard</span>
-                </Link>
               )}
 
               {!user && (

@@ -14,6 +14,8 @@ import AdminPage from "./pages/AdminPage";
 import { useCartStore } from "./stores/useCartStore";
 import CartPage from "./pages/CartPage";
 import ProfilePage from "./pages/ProfilePage";
+import Community from "./pages/Community";
+import ProductDetail from "./pages/ProductDetailPage";
 
 function App() {
   const { user, checkAuth, checkingAuth } = useUserStore();
@@ -62,6 +64,8 @@ function App() {
           />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/community" element={<Community />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
         </Routes>
       </div>
       <Toaster />
