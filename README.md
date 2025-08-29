@@ -1,5 +1,8 @@
 # **Emporio**
 
+### **Live Link:**
+
+
 Emporio is a **digital marketplace** for creators and consumers. Whether you're a designer, developer, student, or seasoned content creator, Emporio makes it effortless to **upload, discover, and purchase digital assets — all in one place.**
 
 - **E-books**
@@ -7,7 +10,7 @@ Emporio is a **digital marketplace** for creators and consumers. Whether you're 
 - **Icons**
 - **Photos**
 - **Templates**
-- **Code Snippets** *(and more coming soon)*
+- **Code Snippets**
 
 ---
 
@@ -19,16 +22,16 @@ Emporio is a **digital marketplace** for creators and consumers. Whether you're 
 ---
 
 ## **Key Features (Functional Requirements)**
-1. **Detailed Product Cards** 
-2. **Product Browsing** 
-3. **Advanced Search** 
-4. **Download & Ratings** 
-5. **Upload Products** 
-6. **Admin Panel**
-7. **Community Page**   
-8. **Tiered Access**
-9. **Wishlist System**  
-10. **Payment Gateway**
+1. **Product Management** 
+2. **Search by name, category, description** 
+3. **User Reviews & Ratings** 
+4. **Wishlist System via voting** 
+5. **Community - discussion** 
+6. **User Profile** 
+7. **Admin Dashboard**
+8. **Analytics**   
+9. **Announcement System**
+10. **Cart System**  
 
 ---
 
