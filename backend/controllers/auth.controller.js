@@ -38,7 +38,7 @@ export const signup = async (req, res) => {
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "3d",
     });
-    res.cookie("jwt_emporio", token, {
+    res.cookie("jwt-emporio", token, {
       httpOnly: true, // prevent xss attack
       maxAge: 3 * 24 * 60 * 60 * 1000,
       sameSite: "strict", // csrf attack

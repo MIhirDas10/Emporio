@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import path from "path";
 
 // routes
 import authRoutes from "./routes/auth.route.js";
@@ -20,6 +21,8 @@ console.log("MONGO_URI:", process.env.MONGO_URI);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const __dirname = path.resolve();
+
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
 
@@ -34,6 +37,7 @@ app.use("/api/posts", postRoutes);
 app.use("/api/announcements", announcementRoutes);
 app.use("/api/votes", voteRoutes);
 app.use("/api/analytics", analyticsRoutes);
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error("=== SERVER ERROR ===");
@@ -48,6 +52,13 @@ app.use((err, req, res, next) => {
   });
 });
 
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "/frontend/dis")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+  });
+}
 app.listen(PORT, () => {
   console.log("SERVER is running on http://localhost:" + PORT);
   connectDB();
