@@ -9,7 +9,7 @@ import Navbar from "./components/Navbar";
 import { Toaster } from "react-hot-toast";
 import { useUserStore } from "./stores/useUserStore";
 import { useEffect } from "react";
-import LoadingSpinner from "./components/loadingSpinner";
+import LoadingSpinner from "./components/LoadingSpinner";
 import AdminPage from "./pages/AdminPage";
 import { useCartStore } from "./stores/useCartStore";
 import CartPage from "./pages/CartPage";
