@@ -20,7 +20,7 @@ export const useCommunityStore = create((set, get) => ({
     try {
       const { data } = await axios.post("/posts", newPost);
 
-      // ✅ refresh user role immediately
+      // refresh user role immediately
       await useUserStore.getState().checkAuth();
 
       // update posts list optimistically
