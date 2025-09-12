@@ -1,6 +1,13 @@
+// useCartStore.js - Complete updated version
 import { create } from "zustand";
 import { toast } from "react-hot-toast";
 import axios from "../lib/axios";
+
+// Helper function to check if JWT token exists in cookies
+const hasValidToken = () => {
+  const cookies = document.cookie.split(";");
+  return cookies.some((cookie) => cookie.trim().startsWith("jwt-emporio="));
+};
 
 export const useCartStore = create((set, get) => ({
   cart: [],
@@ -9,15 +16,26 @@ export const useCartStore = create((set, get) => ({
   subtotal: 0,
   isCouponAppilied: false,
 
-  // get all
+  // Enhanced getCartItems that prevents unnecessary API calls
   getCartItems: async () => {
+    // Skip API call if no token exists
+    if (!hasValidToken()) {
+      set({ cart: [] });
+      return;
+    }
+
     try {
       const res = await axios.get("/cart");
       // update the state
       set({ cart: res.data });
       get().calculateTotals();
     } catch (error) {
-      toast.error(error.response.data.message || "An error occurred");
+      // Only show toast for non-401 errors
+      if (error.response?.status !== 401) {
+        toast.error(error.response.data.message || "An error occurred");
+      }
+      // For 401, silently set empty cart
+      set({ cart: [] });
     }
   },
 
@@ -26,7 +44,6 @@ export const useCartStore = create((set, get) => ({
     try {
       await axios.post("/cart", { productId: product._id });
       toast.success("Product added to cart");
-
       // here i am getting the previous state
       // checking if i have this already in the state. if i don't have it then i am adding the product by the quantity of 1 and if i already have it then just incrementing the quantity by 1
       set((prevState) => {
@@ -81,7 +98,6 @@ export const useCartStore = create((set, get) => ({
       0
     );
     let total = subtotal;
-
     if (coupon) {
       const discount = subtotal * (coupon.discountPercentage / 100);
       total = subtotal - discount;
