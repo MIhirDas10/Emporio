@@ -21,16 +21,28 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const __dirname = path.resolve();
 
-// Connect to database immediately (for serverless)
-try {
-  await connectDB();
-  console.log("Database connected successfully");
-} catch (error) {
-  console.error("Database connection failed:", error);
-}
-
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
+
+// Initialize database connection (no await at top level)
+let dbConnected = false;
+const initializeDB = async () => {
+  if (!dbConnected) {
+    try {
+      await connectDB();
+      dbConnected = true;
+      console.log("Database connected successfully");
+    } catch (error) {
+      console.error("Database connection failed:", error);
+    }
+  }
+};
+
+// Middleware to ensure DB is connected
+app.use(async (req, res, next) => {
+  await initializeDB();
+  next();
+});
 
 // Test route
 app.get("/", (req, res) => {
@@ -38,6 +50,15 @@ app.get("/", (req, res) => {
     message: "Emporio Backend is running!",
     status: "success",
     timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || "development",
+  });
+});
+
+// Health check route
+app.get("/health", (req, res) => {
+  res.json({
+    status: "healthy",
+    database: dbConnected ? "connected" : "disconnected",
   });
 });
 
@@ -67,5 +88,23 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Static files for production
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "/frontend/dist")));
+
+  // ✅ Fixed wildcard route for Express v5
+  app.get("/*catchall", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+  });
+}
+
 // Export for Vercel
 export default app;
+
+// Only listen locally
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, async () => {
+    console.log("SERVER is running on http://localhost:" + PORT);
+    await initializeDB();
+  });
+}
