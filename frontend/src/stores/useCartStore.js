@@ -3,12 +3,6 @@ import { create } from "zustand";
 import { toast } from "react-hot-toast";
 import axios from "../lib/axios";
 
-// Helper function to check if JWT token exists in cookies
-const hasValidToken = () => {
-  const cookies = document.cookie.split(";");
-  return cookies.some((cookie) => cookie.trim().startsWith("jwt-emporio="));
-};
-
 export const useCartStore = create((set, get) => ({
   cart: [],
   coupon: null,
@@ -16,14 +10,8 @@ export const useCartStore = create((set, get) => ({
   subtotal: 0,
   isCouponAppilied: false,
 
-  // Enhanced getCartItems that prevents unnecessary API calls
+  // get cart items
   getCartItems: async () => {
-    // Skip API call if no token exists
-    if (!hasValidToken()) {
-      set({ cart: [] });
-      return;
-    }
-
     try {
       const res = await axios.get("/cart");
       // update the state

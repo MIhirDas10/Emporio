@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import path from "path";
+import cors from "cors";
 
 // routes
 import authRoutes from "./routes/auth.route.js";
@@ -23,6 +24,32 @@ const __dirname = path.resolve();
 
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
+app.set("trust proxy", 1);
+
+const clientUrls = (process.env.CLIENT_URL || "")
+  .split(",")
+  .map((url) => url.trim())
+  .filter(Boolean);
+
+const allowedOrigins = [
+  ...clientUrls,
+  "https://projectemporio.vercel.app",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+].filter(Boolean);
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(null, false);
+    },
+    credentials: true,
+  })
+);
 
 // Initialize database connection (no await at top level)
 let dbConnected = false;
@@ -34,13 +61,26 @@ const initializeDB = async () => {
       console.log("Database connected successfully");
     } catch (error) {
       console.error("Database connection failed:", error);
+      return false;
     }
   }
+
+  return true;
 };
 
 // Middleware to ensure DB is connected
 app.use(async (req, res, next) => {
-  await initializeDB();
+  if (!req.path.startsWith("/api")) {
+    return next();
+  }
+
+  const isReady = await initializeDB();
+  if (!isReady) {
+    return res.status(503).json({
+      message: "Database unavailable. Check the MongoDB connection.",
+    });
+  }
+
   next();
 });
 
@@ -101,8 +141,8 @@ if (process.env.NODE_ENV === "production") {
 // Export for Vercel
 export default app;
 
-// Only listen locally
-if (process.env.NODE_ENV !== "production") {
+// Only listen outside serverless environments.
+if (!process.env.VERCEL) {
   app.listen(PORT, async () => {
     console.log("SERVER is running on http://localhost:" + PORT);
     await initializeDB();

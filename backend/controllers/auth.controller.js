@@ -3,6 +3,25 @@ import bcrypt from "bcryptjs";
 
 import jwt from "jsonwebtoken";
 
+const getAuthCookieOptions = (req) => {
+  const isHttps =
+    req.secure || req.headers["x-forwarded-proto"]?.split(",")[0] === "https";
+  const secure = process.env.NODE_ENV === "production" && isHttps;
+
+  return {
+    httpOnly: true,
+    maxAge: 3 * 24 * 60 * 60 * 1000,
+    sameSite: secure ? "none" : "lax",
+    secure,
+  };
+};
+
+const toSafeUser = (user) => {
+  const userObject = user.toObject();
+  delete userObject.password;
+  return userObject;
+};
+
 export const signup = async (req, res) => {
   try {
     const { name, username, email, password } = req.body;
@@ -38,13 +57,11 @@ export const signup = async (req, res) => {
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "3d",
     });
-    res.cookie("jwt-emporio", token, {
-      httpOnly: true, // prevent xss attack
-      maxAge: 3 * 24 * 60 * 60 * 1000,
-      sameSite: "strict", // csrf attack
-      secure: process.env.NODE_ENV === "production", // man-in-the-middle attack
+    res.cookie("jwt-emporio", token, getAuthCookieOptions(req));
+    res.status(201).json({
+      message: "User registered successfully",
+      user: toSafeUser(user),
     });
-    res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
     console.log("Error in signup: ", error.message);
     res.status(500).json({ message: "Internal server error" });
@@ -75,13 +92,8 @@ export const login = async (req, res) => {
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "3d",
     });
-    await res.cookie("jwt-emporio", token, {
-      httpOnly: true,
-      maxAge: 3 * 24 * 60 * 60 * 1000,
-      sameSite: "strict",
-      secure: process.env.NODE_ENV === "production",
-    });
-    res.json({ message: "Logged in successfully" });
+    res.cookie("jwt-emporio", token, getAuthCookieOptions(req));
+    res.json({ message: "Logged in successfully", user: toSafeUser(user) });
   } catch (error) {
     console.log("Error in login controller: ", error);
     res.status(500).json({ message: "Server Error" });
@@ -89,7 +101,7 @@ export const login = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
-  res.clearCookie("jwt-emporio");
+  res.clearCookie("jwt-emporio", getAuthCookieOptions(req));
   res.json({ message: "Logged out successfully" });
 };
 

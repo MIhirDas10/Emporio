@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { UserPlus, Mail, Lock, User, ArrowRight, Loader } from "lucide-react";
 import { motion } from "framer-motion";
 import { useUserStore } from "../stores/useUserStore";
@@ -14,11 +14,20 @@ const SignupPage = () => {
   });
 
   const { signup, loading } = useUserStore();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Signup Request Body:", formData);
-    signup(formData);
+    try {
+      const signedUpUser = await signup(formData);
+      if (signedUpUser?.role === "admin") {
+        navigate("/secret-dashboard");
+      } else {
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Signup failed:", error);
+    }
   };
 
   return (

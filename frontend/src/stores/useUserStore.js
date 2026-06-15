@@ -3,13 +3,7 @@ import { create } from "zustand";
 import axios from "../lib/axios.js";
 import { toast } from "react-hot-toast";
 
-// Helper function to check if JWT token exists in cookies
-const hasValidToken = () => {
-  const cookies = document.cookie.split(";");
-  return cookies.some((cookie) => cookie.trim().startsWith("jwt-emporio="));
-};
-
-export const useUserStore = create((set, get) => ({
+export const useUserStore = create((set) => ({
   user: null,
   loading: false,
   checkingAuth: true,
@@ -23,22 +17,23 @@ export const useUserStore = create((set, get) => ({
     }
 
     try {
-      await axios.post("/auth/signup", {
+      const response = await axios.post("/auth/signup", {
         name,
         username,
         email,
         password,
       });
-      await get().checkAuth();
-      set({ loading: false });
+      set({ user: response.data.user, loading: false });
       toast.success("Signed up successfully");
+      return response.data.user;
     } catch (error) {
       set({ loading: false });
       toast.error(error.response?.data?.message || "An error occurred");
+      throw error;
     }
   },
 
-  // login - FIXED VERSION
+  // login
   login: async ({ username, email, password }) => {
     set({ loading: true });
     try {
@@ -46,20 +41,10 @@ export const useUserStore = create((set, get) => ({
         password,
         ...(email ? { email } : { username }),
       };
-      await axios.post("/auth/login", payload);
-
-      // After successful login, force check auth WITHOUT token validation
-      // because we know the token was just set by the login endpoint
-      set({ checkingAuth: true });
-      try {
-        const response = await axios.get("/auth/profile");
-        set({ user: response.data, checkingAuth: false, loading: false });
-        toast.success("Logged in successfully");
-        return response.data; // Return the user data immediately
-      } catch (error) {
-        set({ checkingAuth: false, user: null, loading: false });
-        throw new Error("Failed to fetch user profile after login");
-      }
+      const response = await axios.post("/auth/login", payload);
+      set({ user: response.data.user, checkingAuth: false, loading: false });
+      toast.success("Logged in successfully");
+      return response.data.user;
     } catch (error) {
       set({ loading: false });
       toast.error(
@@ -93,15 +78,9 @@ export const useUserStore = create((set, get) => ({
     }
   },
 
-  // Enhanced checkAuth that prevents unnecessary API calls for initial page loads
+  // check auth
   checkAuth: async () => {
     set({ checkingAuth: true });
-
-    // Skip API call if no token exists (only for initial page loads)
-    if (!hasValidToken()) {
-      set({ checkingAuth: false, user: null });
-      return;
-    }
 
     try {
       const response = await axios.get("/auth/profile");
@@ -114,45 +93,4 @@ export const useUserStore = create((set, get) => ({
       set({ checkingAuth: false, user: null });
     }
   },
-
-  // refresh token
-  refreshToken: async () => {
-    if (get().checkingAuth) return;
-    set({ checkingAuth: true });
-    try {
-      const response = await axios.post("/auth/refresh-token");
-      set({ checkingAuth: false });
-      return response.data;
-    } catch (error) {
-      set({ user: null, checkingAuth: false });
-      throw error;
-    }
-  },
 }));
-
-let refreshPromise = null;
-
-axios.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      try {
-        if (refreshPromise) {
-          await refreshPromise;
-          return axios(originalRequest);
-        }
-
-        refreshPromise = useUserStore.getState().refreshToken();
-        await refreshPromise;
-        refreshPromise = null;
-        return axios(originalRequest);
-      } catch (refreshError) {
-        useUserStore.getState().logout();
-        return Promise.reject(refreshError);
-      }
-    }
-    return Promise.reject(error);
-  }
-);
