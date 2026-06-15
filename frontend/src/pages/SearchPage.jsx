@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { SearchX, LayoutGrid, List } from "lucide-react";
 import { useCartStore } from "../stores/useCartStore";
 import { ShoppingCart } from "lucide-react";
+import axios from "../lib/axios";
 
 const SearchPage = () => {
   const location = useLocation();
@@ -16,9 +17,8 @@ const SearchPage = () => {
 
     const fetchResults = async () => {
       try {
-        const res = await fetch(`/api/search?query=${query}`);
-        const data = await res.json();
-        setResults(data);
+        const response = await axios.get("/search", { params: { query } });
+        setResults(response.data);
       } catch (error) {
         console.error("Error fetching search results:", error);
       }

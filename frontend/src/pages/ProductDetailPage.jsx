@@ -6,6 +6,7 @@ import ReviewsList from "../components/ReviewsList";
 import { useUserStore } from "../stores/useUserStore";
 import { useCartStore } from "../stores/useCartStore";
 import toast from "react-hot-toast";
+import axios from "../lib/axios";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -17,11 +18,8 @@ const ProductDetail = () => {
 
   const fetchProduct = async () => {
     try {
-      const response = await fetch(`/api/products/single/${id}`);
-      if (response.ok) {
-        const data = await response.json();
-        setProduct(data);
-      }
+      const response = await axios.get(`/products/single/${id}`);
+      setProduct(response.data);
     } catch (error) {
       console.error("Error fetching product:", error);
     } finally {

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Star, User } from "lucide-react";
 import { motion } from "framer-motion";
+import axios from "../lib/axios";
 
 const ReviewsList = ({ productId }) => {
   const [reviews, setReviews] = useState([]);
@@ -8,12 +9,8 @@ const ReviewsList = ({ productId }) => {
 
   const fetchReviews = async () => {
     try {
-      // You'll need to create this public endpoint
-      const response = await fetch(`/api/products/${productId}/reviews/public`);
-      if (response.ok) {
-        const data = await response.json();
-        setReviews(data.reviews || []);
-      }
+      const response = await axios.get(`/products/${productId}/reviews/public`);
+      setReviews(response.data.reviews || []);
     } catch (error) {
       console.error("Error fetching reviews:", error);
     } finally {

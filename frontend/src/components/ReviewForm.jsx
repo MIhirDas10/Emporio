@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Star } from "lucide-react";
 import toast from "react-hot-toast";
 import { useUserStore } from "../stores/useUserStore";
+import axios from "../lib/axios";
 
 const ReviewForm = ({ productId, onReviewSubmitted }) => {
   const [rating, setRating] = useState(0);
@@ -25,27 +26,13 @@ const ReviewForm = ({ productId, onReviewSubmitted }) => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`/api/products/${productId}/reviews`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include", // This handles cookies/auth
-        body: JSON.stringify({ rating, comment }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        toast.success("Review added successfully!");
-        setRating(0);
-        setComment("");
-        onReviewSubmitted?.();
-      } else {
-        toast.error(data.message || "Failed to add review");
-      }
+      await axios.post(`/products/${productId}/reviews`, { rating, comment });
+      toast.success("Review added successfully!");
+      setRating(0);
+      setComment("");
+      onReviewSubmitted?.();
     } catch (error) {
-      toast.error("Network error. Please try again.");
+      toast.error(error.response?.data?.message || "Network error. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Trophy, TrendingUp } from "lucide-react";
-import axios from "axios";
+import axios from "../lib/axios";
 
 const TopVotedProducts = () => {
   const [topProducts, setTopProducts] = useState([]);
@@ -12,7 +12,7 @@ const TopVotedProducts = () => {
 
   const fetchTopVoted = async () => {
     try {
-      const response = await axios.get("/api/votes/top-voted");
+      const response = await axios.get("/votes/top-voted");
       if (response.data.success) {
         setTopProducts(response.data.data);
       }

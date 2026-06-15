@@ -2,6 +2,9 @@
   "name": "project-folder",
   "version": "1.0.0",
   "main": "backend/server.js",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "nodemon backend/server.js",
     "start": "node backend/server.js",

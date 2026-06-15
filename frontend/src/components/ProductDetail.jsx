@@ -1,6 +1,7 @@
 // pages/ProductDetail.jsx or components/ProductDetail.jsx
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
+import axios from "../lib/axios";
 
 const ProductDetail = () => {
   const { id } = useParams(); // This gets the ID from the URL
@@ -14,10 +15,8 @@ const ProductDetail = () => {
 
   const fetchProduct = async (productId) => {
     try {
-      // Your API call to get product by ID
-      const response = await fetch(`/api/products/${productId}`);
-      const data = await response.json();
-      setProduct(data);
+      const response = await axios.get(`/products/${productId}`);
+      setProduct(response.data);
     } catch (error) {
       console.error("Error fetching product:", error);
     } finally {

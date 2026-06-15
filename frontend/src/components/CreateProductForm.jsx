@@ -11,7 +11,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useProductStore } from "../stores/useProductStore";
-import axios from "axios";
+import axios from "../lib/axios";
 import toast, { Toaster } from "react-hot-toast";
 
 const categories = [
@@ -48,7 +48,7 @@ const CreateProductForm = () => {
   const fetchTopVotes = async () => {
     setLoadingTopVotes(true);
     try {
-      const response = await axios.get("/api/votes/products-with-votes");
+      const response = await axios.get("/votes/products-with-votes");
       if (response.data.success) {
         setTopVotedProducts(response.data.data.slice(0, 5));
       } else {
@@ -95,7 +95,7 @@ const CreateProductForm = () => {
     if (!newWishlistItem.trim()) return;
     setAddingWishlistItem(true);
     try {
-      const response = await axios.post("/api/votes/wishlist-item", {
+      const response = await axios.post("/votes/wishlist-item", {
         name: newWishlistItem.trim(),
       });
       if (response.data.success) {
@@ -116,7 +116,7 @@ const CreateProductForm = () => {
   const handleDeleteWishlistItem = async (productId) => {
     try {
       const response = await axios.delete(
-        `/api/votes/wishlist-item/${productId}`
+        `/votes/wishlist-item/${productId}`
       );
       if (response.data.success) {
         fetchTopVotes();

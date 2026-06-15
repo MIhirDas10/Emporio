@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../lib/axios";
 import { Trash } from "lucide-react";
 import { motion } from "framer-motion";
 import { useUserStore } from "../stores/useUserStore";
@@ -234,7 +234,7 @@ const Community = () => {
 
   const fetchPosts = async () => {
     try {
-      const response = await axios.get("/api/posts");
+      const response = await axios.get("/posts");
       setPosts(sortByDate(response.data || []));
     } catch (error) {
       console.error("Error fetching posts:", error);
@@ -244,7 +244,7 @@ const Community = () => {
   const fetchAnnouncements = async () => {
     try {
       const response = await axios.get(
-        "/api/announcements?limit=10&pinnedFirst=true"
+        "/announcements?limit=10&pinnedFirst=true"
       );
       const items = response.data?.items || response.data || [];
       setAnnouncements(items);
@@ -263,7 +263,7 @@ const Community = () => {
     if (!content.trim()) return;
 
     try {
-      const response = await axios.post("/api/posts", { content });
+      const response = await axios.post("/posts", { content });
       setPosts((prevPosts) => sortByDate([response.data, ...prevPosts]));
       setContent("");
     } catch (error) {
@@ -273,7 +273,7 @@ const Community = () => {
 
   const handleDelete = async (postId) => {
     try {
-      await axios.delete(`/api/posts/${postId}`);
+      await axios.delete(`/posts/${postId}`);
       setPosts((prevPosts) => prevPosts.filter((post) => post._id !== postId));
     } catch (error) {
       console.error("Error deleting post:", error);

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { Vote, CheckCircle2, RotateCcw } from "lucide-react";
-import axios from "axios";
+import axios from "../lib/axios";
 import { useUserStore } from "../stores/useUserStore"; // Your auth store
 
 const Wishlist = () => {
@@ -23,7 +23,7 @@ const Wishlist = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get("/api/votes/products-with-votes");
+      const response = await axios.get("/votes/products-with-votes");
       if (response.data.success) {
         setProducts(response.data.data || []);
       } else {
@@ -40,7 +40,7 @@ const Wishlist = () => {
 
     try {
       const response = await axios.get(
-        `/api/votes/user/${user._id}/voted-products`
+        `/votes/user/${user._id}/voted-products`
       );
       if (response.data.success) {
         setVotedProductIds(new Set(response.data.productIds));
@@ -76,7 +76,7 @@ const Wishlist = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post("/api/votes/vote", { selected });
+      const response = await axios.post("/votes/vote", { selected });
       if (response.data.success) {
         setVotedProductIds(
           (prev) => new Set([...Array.from(prev), ...selected])
