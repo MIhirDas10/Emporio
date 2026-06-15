@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import path from "path";
 import cors from "cors";
+import fs from "fs";
 
 // routes
 import authRoutes from "./routes/auth.route.js";
@@ -21,6 +22,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 const __dirname = path.resolve();
+const frontendDistPath = path.join(__dirname, "frontend", "dist");
 
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
@@ -128,13 +130,17 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Static files for production
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "/frontend/dist")));
+// Static files for single-service production deploys.
+if (
+  process.env.NODE_ENV === "production" &&
+  !process.env.VERCEL &&
+  fs.existsSync(frontendDistPath)
+) {
+  app.use(express.static(frontendDistPath));
 
   // ✅ Fixed wildcard route for Express v5
   app.get("/*catchall", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+    res.sendFile(path.join(frontendDistPath, "index.html"));
   });
 }
 
