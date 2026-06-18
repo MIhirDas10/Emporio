@@ -5,7 +5,7 @@ Emporio is a full-stack digital marketplace for discovering and managing digital
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Open_Emporio-6C63FF?style=for-the-badge)](https://emporio-topaz.vercel.app/)
 [![Demo Video](https://img.shields.io/badge/YouTube-Watch_Demo-FF0000?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=CcrrEl5yr_4)
 
-![Emporio homepage](https://github.com/user-attachments/assets/3e89a957-292a-4c81-87fd-0ea2bceec489)
+![Emporio homepage](https://github.com/user-attachments/assets/36971d33-6639-4d0e-9a04-231bb8c47bd3)
 
 ## Features
 
