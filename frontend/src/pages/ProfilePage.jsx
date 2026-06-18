@@ -69,7 +69,7 @@ const ProfilePage = () => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 pt-20 px-4">
+    <div className="min-h-screen bg-transparent text-gray-100 pt-20 px-4">
       <div className="max-w-4xl mx-auto">
         {/* banner */}
         <motion.div

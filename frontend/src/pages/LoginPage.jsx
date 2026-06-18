@@ -33,9 +33,10 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-blue-950 via-gray-900 to-gray-950">
+    <div className="flex min-h-screen bg-gradient-to-br from-blue-950 via-gray-900 to-gray-950 justify-center items-center px-4 sm:px-6 lg:px-8">
+      <div className="flex w-full max-w-5xl justify-between items-center gap-12">
       {/* left side image */}
-      <div className="hidden lg:flex w-1/2 items-center justify-center relative ml-25 mt-12">
+      <div className="hidden lg:flex w-1/2 items-center justify-center relative">
         <img
           src="/l7.gif"
           alt="Demo"
@@ -44,7 +45,7 @@ const LoginPage = () => {
       </div>
 
       {/* right side login form */}
-      <div className="flex flex-col justify-center py-12 px-6 lg:px-8 w-full lg:w-1/2 mr-35">
+      <div className="flex flex-col justify-center w-full lg:w-1/2">
         <motion.div
           className="sm:mx-auto sm:w-full sm:max-w-md"
           initial={{ opacity: 0, y: -20 }}
@@ -142,6 +143,7 @@ const LoginPage = () => {
             </p>
           </div>
         </motion.div>
+      </div>
       </div>
     </div>
   );

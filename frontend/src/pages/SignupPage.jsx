@@ -31,9 +31,10 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
-      {/* left side signup form */}
-      <div className="flex flex-col justify-center min-h py-10 px-4 lg:px-6 w-full lg:w-1/2 ml-65 mt-8">
+    <div className="flex min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 justify-center items-center px-4 sm:px-6 lg:px-8">
+      <div className="flex w-full max-w-5xl justify-between items-center gap-12">
+        {/* left side signup form */}
+        <div className="flex flex-col justify-center w-full lg:w-1/2">
         <motion.div
           className="mx-auto h-[40px]"
           initial={{ opacity: 0, y: -20 }}
@@ -245,12 +246,13 @@ const SignupPage = () => {
       </div>
 
       {/* right side image */}
-      <div className="hidden lg:flex w-1/2 items-center justify-center relative mr-25 mt-14">
+      <div className="hidden lg:flex w-1/2 items-center justify-center relative">
         <img
           src="/w1.gif"
           alt="Signup demo"
           className="max-w-lg w-3/4 rounded-xl opacity-90 mix-blend-screen drop-shadow-2xl"
         />
+      </div>
       </div>
     </div>
   );
